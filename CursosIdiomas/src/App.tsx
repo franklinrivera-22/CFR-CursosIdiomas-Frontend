@@ -1,7 +1,7 @@
 function App(){
   return (
     <div> 
-      <h1>SISTEMA CURSOS DE IDIOMASS</h1>
+      <h1>SISTEMA CURSOS DE IDIOMAS</h1>
       <p>Bienvenido!</p>
     </div>
   )
