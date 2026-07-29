@@ -1,9 +1,18 @@
-function App(){
+import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./presentation/context/AuthContext";
+import { CartProvider } from "./presentation/context/CartContext";
+import { AppRouter } from "./router/AppRouter";
+
+function App() {
   return (
-    <div> 
-      <h1>SISTEMA CURSOS DE IDIOMAS</h1>
-      <p>Bienvenido!</p>
-    </div>
-  )
+    <AuthProvider>
+      <CartProvider>
+        <BrowserRouter>
+          <AppRouter />
+        </BrowserRouter>
+      </CartProvider>
+    </AuthProvider>
+  );
 }
+
 export default App;

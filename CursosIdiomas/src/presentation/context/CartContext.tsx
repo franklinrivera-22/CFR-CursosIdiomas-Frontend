@@ -1,5 +1,5 @@
 import { createContext, useReducer, type ReactNode } from "react";
-import type { CartItem, Course } from "../../models";
+import type { CartItem, Course } from "../../core/models";
 
 
 interface CartState {
