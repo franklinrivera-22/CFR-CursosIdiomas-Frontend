@@ -1,4 +1,4 @@
-import type { ApiResponse, Statistics } from "../../models";
+import type { ApiResponse, Statistics } from "../models";
 import { cursosApi } from "../api";
 
 

@@ -22,7 +22,13 @@ export const LoginPage = () => {
     setLoading(false);
     
 if (res.ok) {
-  navigate("/", { replace: true });
+  const savedRoles: string[] = JSON.parse(localStorage.getItem("roles") || "[]");
+
+  if (savedRoles.includes("ADMIN")) {
+    navigate("/admin/cursos", { replace: true });
+  } else {
+    navigate("/", { replace: true });
+  }
 }
   };
 
@@ -38,7 +44,7 @@ if (res.ok) {
         {error && <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</div>}
 
         <div className="space-y-4">
-
+          {/* Input de Correo */}
           <input 
             type="email"
             value={email} 
@@ -47,6 +53,7 @@ if (res.ok) {
             className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500" 
           />
 
+          {/* Input de Contraseña */}
           <input 
             type="password" 
             value={password} 
@@ -56,10 +63,11 @@ if (res.ok) {
             className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500" 
           />
 
+          {/* Botón de Ingresar */}
           <button 
             onClick={(e) => handleSubmit(e)} 
             disabled={loading}
-            className="w-full rounded-md bg-slate-800 py-2 font-semibold text-white hover:bg--900 disabled:opacity-50"
+            className="w-full rounded-md bg-slate-800 py-2 font-semibold text-white hover:bg-slate-700 disabled:opacity-50"
           >
             {loading ? "Ingresando..." : "Ingresar"}
           </button>

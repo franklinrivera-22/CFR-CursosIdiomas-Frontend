@@ -1,9 +1,11 @@
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getCategoriesAction, getCoursesAction } from "../../../core/actions";
-import type { Category, Course, Page } from "../../../core/models";
-import { CourseCard, Spinner } from "../../components";
+
 import { useCart } from "../../hooks";
+import type { Category, Course, Page } from "../../../core/models";
+import { Spinner } from "../../components/common/Spinner";
+import { CourseCard } from "../../components/courses/CourseCard";
 
 export const CatalogPage = () => {
   const { addToCart } = useCart();

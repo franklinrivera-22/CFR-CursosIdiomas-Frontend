@@ -1,4 +1,4 @@
-import type { ApiResponse, LoginResponse } from "../../models";
+import type { ApiResponse, LoginResponse } from "../models";
 import { cursosApi } from "../api";
 
 export const loginAction = async (
