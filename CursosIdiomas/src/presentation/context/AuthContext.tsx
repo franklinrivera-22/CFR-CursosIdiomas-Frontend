@@ -112,7 +112,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         token,
         fullName,
         roles,
-        isAdmin: roles.includes("Admin"),
+        isAdmin: roles.includes("ADMIN"),
         isUser: roles.includes("NORMAL_USER"), 
         isAuthenticated: !!token,
         register,
@@ -124,4 +124,3 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     </AuthContext.Provider>
   );
 };
-
