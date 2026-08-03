@@ -1,61 +1,18 @@
-import { CreditCard, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { useCart } from "../../hooks/useCart";
-import { checkoutAction } from "../../../core/actions/checkout.action";
-
-
-interface PaymentForm {
-  customerName: string;
-  customerEmail: string;
-  cardNumber: string;
-  cardExpiry: string;
-  cardCvv: string;
-}
+import {
+  createOrderAction,
+  captureOrderAction,
+} from "../../../core/actions/checkout.action";
 
 export const CartPage = () => {
   const { items, totalAmount, increment, decrement, removeFromCart, clearCart } = useCart();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState<PaymentForm>({
-    customerName: "",
-    customerEmail: "",
-    cardNumber: "4242424242424242",
-    cardExpiry: "12/28",
-    cardCvv: "123",
-  });
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
-
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>setForm({ ...form, [e.target.name]: e.target.value });
-  const handleCheckout = async () => {setMessage(null);
-
-    if (!form.customerName || !form.customerEmail) {
-      setMessage({ ok: false, text: "Completa tu nombre y correo." });
-      return;
-    }
-    if (items.length === 0) {
-      setMessage({ ok: false, text: "Tu carrito esta vacio." });
-      return;
-    }
-
-    setLoading(true);
-    try {const res = await checkoutAction({...form,items: items.map((i) => ({ courseId: i.course.id, quantity: i.quantity })), });
-
-      if (res.status && res.data.approved) {
-        setMessage({ ok: true, text: `¡Pago aprobado! Referencia: ${res.data.paymentReference}` });
-        clearCart();
-        setTimeout(() => navigate("/historial"), 1800);
-      } else {
-        const motivo = res.data?.transaction?.paymentMessage || res.message;
-        setMessage({ ok: false, text: `Pago rechazado: ${motivo}` });
-      }
-    } catch {
-      setMessage({ ok: false, text: "Ocurrio un error al procesar el pago." });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (items.length === 0 && !message) {
     return (
@@ -102,30 +59,9 @@ export const CartPage = () => {
         </div>
       </div>
 
-      {/* Formulario de pago (sandbox) */}
+      {/* Pago con PayPal */}
       <div className="rounded-lg bg-white p-5 shadow-md">
-        <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-blue-950">
-          <CreditCard size={20} /> Datos de pago
-        </h2>
-
-        <div className="mb-4 rounded-md bg-blue-50 p-3 text-xs text-blue-800">
-          Tarjeta aprobada: 4242 4242 4242 4242 · Rechazada: 4000 0000 0000 0002
-        </div>
-
-        <div className="space-y-3">
-          <input name="customerName" value={form.customerName} onChange={onChange} placeholder="Nombre completo"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <input name="customerEmail" value={form.customerEmail} onChange={onChange} placeholder="Correo electrónico"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <input name="cardNumber" value={form.cardNumber} onChange={onChange} placeholder="Número de tarjeta"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <div className="flex gap-3">
-            <input name="cardExpiry" value={form.cardExpiry} onChange={onChange} placeholder="MM/AA"
-              className="w-1/2 rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            <input name="cardCvv" value={form.cardCvv} onChange={onChange} placeholder="CVV"
-              className="w-1/2 rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          </div>
-        </div>
+        <h2 className="mb-4 text-lg font-bold text-blue-950">Pago con PayPal</h2>
 
         <div className="my-4 flex items-center justify-between border-t pt-4">
           <span className="text-lg font-semibold">Total</span>
@@ -138,9 +74,41 @@ export const CartPage = () => {
           </div>
         )}
 
-        <button onClick={handleCheckout} disabled={loading} className="w-full rounded-md bg-blue-800 py-3 font-semibold text-white transition hover:bg-blue-900 disabled:opacity-50">
-          {loading ? "Procesando..." : `Pagar Lps.${totalAmount.toFixed(2)}`}
-        </button>
+        {items.length > 0 && (
+          <PayPalScriptProvider
+            options={{
+              clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
+              currency: "USD",
+            }}
+          >
+            <PayPalButtons
+              style={{ layout: "vertical" }}
+              createOrder={async () => {
+                setMessage(null);
+                const res = await createOrderAction(
+                  items.map((i) => ({ courseId: i.course.id, quantity: i.quantity }))
+                );
+                if (!res.status || !res.data?.orderId) {
+                  setMessage({ ok: false, text: res.message || "No se pudo crear la orden." });
+                  throw new Error("create-order failed");
+                }
+                return res.data.orderId;
+              }}
+              onApprove={async (data) => {
+                const res = await captureOrderAction(data.orderID!);
+                if (res.status && res.data.approved) {
+                  setMessage({ ok: true, text: `¡Pago aprobado! Referencia: ${res.data.paymentReference}` });
+                  clearCart();
+                  setTimeout(() => navigate("/historial"), 1800);
+                } else {
+                  const motivo = res.data?.transaction?.paymentMessage || res.message;
+                  setMessage({ ok: false, text: `Pago rechazado: ${motivo}` });
+                }
+              }}
+              onError={() => setMessage({ ok: false, text: "Ocurrió un error al procesar el pago con PayPal." })}
+            />
+          </PayPalScriptProvider>
+        )}
       </div>
     </div>
   );

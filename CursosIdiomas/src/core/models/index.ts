@@ -83,10 +83,5 @@ export interface Statistics {
 }
 
 export interface CheckoutForm {
-  customerName: string;
-  customerEmail: string;
-  cardNumber: string;
-  cardExpiry: string;
-  cardCvv: string;
   items: { courseId: string; quantity: number }[];
 }
