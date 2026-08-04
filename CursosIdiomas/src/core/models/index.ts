@@ -85,3 +85,11 @@ export interface Statistics {
 export interface CheckoutForm {
   items: { courseId: string; quantity: number }[];
 }
+
+export interface Enrollment {
+  id: string;
+  progress: number;
+  isActive: boolean;
+  createdDate: string;
+  course: Course;
+}
