@@ -99,7 +99,7 @@ export const CartPage = () => {
                 if (res.status && res.data.approved) {
                   setMessage({ ok: true, text: `¡Pago aprobado! Referencia: ${res.data.paymentReference}` });
                   clearCart();
-                  setTimeout(() => navigate("/historial"), 1800);
+                  setTimeout(() => navigate("/mis-cursos"), 1800);
                 } else {
                   const motivo = res.data?.transaction?.paymentMessage || res.message;
                   setMessage({ ok: false, text: `Pago rechazado: ${motivo}` });

@@ -13,23 +13,35 @@ export const LoginPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e?: SyntheticEvent) => {
-    if (e) e.preventDefault(); 
-    
+    if (e) e.preventDefault();
+
     setLoading(true);
     setError(null);
-    
-    const res = await login(email, password);
-    setLoading(false);
-    
-if (res.ok) {
-  const savedRoles: string[] = JSON.parse(localStorage.getItem("roles") || "[]");
 
-  if (savedRoles.includes("ADMIN")) {
-    navigate("/admin/cursos", { replace: true });
-  } else {
-    navigate("/", { replace: true });
-  }
-}
+    try {
+      const res = await login(email, password);
+      setLoading(false);
+
+      if (res.ok) {
+        const savedRoles: string[] = JSON.parse(
+          localStorage.getItem("roles") || "[]",
+        );
+
+        if (savedRoles.includes("ADMIN")) {
+          navigate("/admin/cursos", { replace: true });
+        } else {
+          navigate("/", { replace: true });
+        }
+      } else {
+        setError(
+          res.message ||
+            "Correo o contraseña incorrectos. Por favor, verifica tus datos.",
+        );
+      }
+    } catch {
+      setLoading(false);
+      setError("Ocurrió un error inesperado al intentar iniciar sesión.");
+    }
   };
 
   return (
@@ -41,37 +53,43 @@ if (res.ok) {
           <p className="text-sm text-gray-500">Acceso para administradores</p>
         </div>
 
-        {error && <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        {/* Mensaje de error dinámico */}
+        {error && (
+          <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700 border border-red-200">
+            {error}
+          </div>
+        )}
 
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Input de Correo */}
-          <input 
+          <input
             type="email"
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="Correo"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500" 
+            required
+            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
 
           {/* Input de Contraseña */}
-          <input 
-            type="password" 
-            value={password} 
+          <input
+            type="password"
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSubmit(e)} 
             placeholder="Contraseña"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500" 
+            required
+            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
 
           {/* Botón de Ingresar */}
-          <button 
-            onClick={(e) => handleSubmit(e)} 
+          <button
+            type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-slate-800 py-2 font-semibold text-white hover:bg-slate-700 disabled:opacity-50"
+            className="w-full rounded-md bg-slate-800 py-2 font-semibold text-white hover:bg-slate-700 disabled:opacity-50 transition-colors"
           >
             {loading ? "Ingresando..." : "Ingresar"}
           </button>
-        </div>
+        </form>
 
         <p className="mt-4 text-center text-xs text-gray-400">
           Demo: admin@cursos.com / admin123

@@ -1,4 +1,4 @@
-import { BookOpen, History, Home, LogIn, LogOut, Menu, Settings, ShoppingCart, UserPlus, X } from "lucide-react";
+import { BookOpen, GraduationCap, History, Home, LogIn, LogOut, Menu, Settings, ShoppingCart, UserPlus, X } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "./NavLink";
@@ -42,6 +42,17 @@ export const Navbar = () => {
             <span className={scaleWrapper}>
               <NavLink icon={<BookOpen size={18} />} text="Catálogo" to="/catalogo" active={isActive("/catalogo")} />
             </span>
+
+            {isAuthenticated && !isAdmin && (
+              <span className={scaleWrapper}>
+                <NavLink
+                  icon={<GraduationCap size={18} />}
+                  text="Mis cursos"
+                  to="/mis-cursos"
+                  active={isActive("/mis-cursos")}
+                />
+              </span>
+            )}
 
             {isAuthenticated && (
               <span className={scaleWrapper}>
@@ -125,7 +136,17 @@ export const Navbar = () => {
         <div className="space-y-1 px-2 pb-3 pt-2 md:hidden">
           <MobileNavLink icon={<Home size={18} />} text="Inicio" to="/" active={isActive("/")} onClick={() => setIsMenuOpen(false)} />
           <MobileNavLink icon={<BookOpen size={18} />} text="Catálogo" to="/catalogo" active={isActive("/catalogo")} onClick={() => setIsMenuOpen(false)} />
-          
+
+          {isAuthenticated && !isAdmin && (
+            <MobileNavLink
+              icon={<GraduationCap size={18} />}
+              text="Mis cursos"
+              to="/mis-cursos"
+              active={isActive("/mis-cursos")}
+              onClick={() => setIsMenuOpen(false)}
+            />
+          )}
+
           {isAuthenticated && (
             <MobileNavLink
               icon={<History size={18} />}

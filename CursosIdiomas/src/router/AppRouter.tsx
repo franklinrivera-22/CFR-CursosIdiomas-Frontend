@@ -7,6 +7,7 @@ import {
   LoginPage,
   RegisterPage,
   CoursesAdminPage,
+  MyCoursesPage,
 } from "../presentation/pages";
 import { ProtectedRoute } from "../presentation/components/ProtectedRoute";
 import { Navbar } from "../presentation/components/layout/Navbar";
@@ -28,6 +29,14 @@ export const AppRouter = () => {
             element={
               <ProtectedRoute>
                 <CartPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/mis-cursos"
+            element={
+              <ProtectedRoute>
+                <MyCoursesPage />
               </ProtectedRoute>
             }
           />
